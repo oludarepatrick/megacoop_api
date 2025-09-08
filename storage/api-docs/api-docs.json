@@ -1,0 +1,351 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Megacoop API Documentation",
+        "description": "Cooperative",
+        "contact": {
+            "email": "development@leverpay.io"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://127.0.0.1:8000",
+            "description": "Test server"
+        }
+    ],
+    "paths": {
+        "/api/v1/admin/generate-code": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Generate sign up access code",
+                "description": "Generate a unique, case-sensitive, 8-digit alphanumeric access code for a new user. \n     *                If a valid code already exists, return it with remaining expiration time.",
+                "operationId": "GenerateCode",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "first_name",
+                                    "last_name",
+                                    "email"
+                                ],
+                                "properties": {
+                                    "first_name": {
+                                        "type": "string",
+                                        "example": "John"
+                                    },
+                                    "middle_name": {
+                                        "type": "string",
+                                        "example": "A."
+                                    },
+                                    "last_name": {
+                                        "type": "string",
+                                        "example": "Doe"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "example": "john@example.com"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Code generated successfully or existing code returned",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Access code generated successfully"
+                                        },
+                                        "code": {
+                                            "type": "string",
+                                            "example": "Ab3X9zPq"
+                                        },
+                                        "expires_in_mins": {
+                                            "type": "integer",
+                                            "example": 1430
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    },
+                    "500": {
+                        "description": "Server error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/access-codes": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get all access codes",
+                "description": "Retrieve a list of all generated access codes with user and admin details.",
+                "operationId": "GetAccessCodes",
+                "responses": {
+                    "200": {
+                        "description": "List of codes",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "code": {
+                                                "type": "string",
+                                                "example": "Ab3X9zPq"
+                                            },
+                                            "status": {
+                                                "type": "string",
+                                                "example": "available"
+                                            },
+                                            "expiration_date": {
+                                                "type": "string",
+                                                "format": "date-time",
+                                                "example": "2025-09-07 15:43:58"
+                                            },
+                                            "user": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "email": {
+                                                        "type": "string",
+                                                        "example": "user@example.com"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            },
+                                            "admin": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 2
+                                                    },
+                                                    "email": {
+                                                        "type": "string",
+                                                        "example": "admin@example.com"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/access-codes/{id}/status": {
+            "patch": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Update access code status",
+                "description": "Update the status of an access code (Available, Used, Expired).",
+                "operationId": "UpdateCodeStatus",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the access code",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "status"
+                                ],
+                                "properties": {
+                                    "status": {
+                                        "type": "string",
+                                        "enum": [
+                                            "used",
+                                            "expired"
+                                        ],
+                                        "example": "used"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Status updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Code status updated"
+                                        },
+                                        "code": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "used"
+                                                },
+                                                "code": {
+                                                    "type": "string",
+                                                    "example": "Ab3X9zPq"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "Code not found"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/login": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Authentication",
+                "operationId": "login Authentication",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "bearer_token": {
+                "type": "http",
+                "scheme": "bearer",
+                "description": "Enter token in format (Bearer <token>)",
+                "name": "Authorization",
+                "in": "header"
+            }
+        }
+    },
+    "security": [
+        {
+            "passport": {
+                "type": "oauth2",
+                "description": "Laravel passport oauth2 security.",
+                "in": "header",
+                "scheme": "https",
+                "flows": {
+                    "password": {
+                        "authorizationUrl": "http://127.0.0.1:8000/oauth/authorize",
+                        "tokenUrl": "http://127.0.0.1:8000/oauth/token",
+                        "refreshUrl": "http://127.0.0.1:8000/token/refresh",
+                        "scopes": []
+                    }
+                }
+            }
+        }
+    ]
+}
