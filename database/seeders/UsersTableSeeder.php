@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use App\Models\User;
+use App\Models\AdminLogin;
 
 class UsersTableSeeder extends Seeder
 {
@@ -15,14 +15,13 @@ class UsersTableSeeder extends Seeder
      */
     public function run()
     {
-        $users = [
+        $admins = [
             [
                 'first_name' => 'Super',
                 'last_name' => 'Admin',
                 'email' => 'super@megacoop.com',
                 'password' => Hash::make('password'),
                 'phone' => '07038635986',
-                'verify_email_token' => '22233',
                 'role_id' => 1,
             ],
             [
@@ -31,13 +30,13 @@ class UsersTableSeeder extends Seeder
                 'email' => 'admin@megacoop.com',
                 'password' => Hash::make('password'),
                 'phone' => '07038655985',
-                'verify_email_token' => '122333',
-                'role_id' => 1,
+                
+                'role_id' => 2,
             ],
         ];
 
-        foreach ($users as $user) {
-            User::updateOrCreate(
+        foreach ($admins as $user) {
+            AdminLogin::updateOrCreate(
                 ['email' => $user['email']], // search by email
                 $user                          // update or create with this data
             );

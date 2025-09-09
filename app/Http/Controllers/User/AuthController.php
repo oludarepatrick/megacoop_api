@@ -1,7 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\User;
 
+use App\Http\Controllers\BaseController;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Auth;
@@ -18,8 +20,8 @@ class AuthController extends BaseController
 {
     /**
      * @OA\Post(
-     ** path="/api/v1/login",
-     *   tags={"Authentication"},
+     ** path="/api/v1/user/login",
+     *   tags={"User"},
      *   summary="Authentication",
      *   operationId="login Authentication",
      *
