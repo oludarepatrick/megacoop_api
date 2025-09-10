@@ -15,7 +15,7 @@ return new class extends Migration
                   ->cascadeOnDelete();
 
             $table->string('code', 8)->unique(); 
-            $table->enum('status', ['available', 'used', 'expired'])
+            $table->enum('status', ['available', 'used', 'expired', 'inactive'])
                   ->default('available');
 
             $table->foreignId('generated_by')
