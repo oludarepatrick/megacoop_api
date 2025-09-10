@@ -268,6 +268,95 @@
                 ]
             }
         },
+        "/api/v1/user/validate-code": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Validate sign up access code",
+                "description": "Validate if an access code is valid, unused, and not expired. Returns user details if valid.",
+                "operationId": "ValidateCode",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "code"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "example": "john@example.com"
+                                    },
+                                    "code": {
+                                        "type": "string",
+                                        "example": "Ab3X9zPq"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Code validated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Code validated successfully"
+                                        },
+                                        "first_name": {
+                                            "type": "string",
+                                            "example": "John"
+                                        },
+                                        "last_name": {
+                                            "type": "string",
+                                            "example": "Doe"
+                                        },
+                                        "middle_name": {
+                                            "type": "string",
+                                            "example": "A."
+                                        },
+                                        "code": {
+                                            "type": "string",
+                                            "example": "Ab3X9zPq"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid or expired code",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Code does not exist, has already been used, or is expired"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    },
+                    "500": {
+                        "description": "Server error"
+                    }
+                }
+            }
+        },
         "/api/v1/admin/admin-login": {
             "post": {
                 "tags": [
@@ -318,13 +407,13 @@
                 }
             }
         },
-        "/api/v1/admin/admin-logout": {
+        "/api/v1/admin/logout": {
             "get": {
                 "tags": [
                     "Admin"
                 ],
                 "summary": "Admin Logout",
-                "operationId": "Admin logout",
+                "operationId": "Adminlogout",
                 "responses": {
                     "200": {
                         "description": "Success",
@@ -358,7 +447,7 @@
                     "Admin"
                 ],
                 "summary": "Admin Profile",
-                "operationId": "Admin Profile",
+                "operationId": "AdminProfile",
                 "responses": {
                     "200": {
                         "description": "Success",
@@ -432,6 +521,166 @@
                     },
                     "403": {
                         "description": "Forbidden"
+                    }
+                }
+            }
+        },
+        "/api/v1/user/logout": {
+            "get": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "User Logout",
+                "operationId": "Userlogout",
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/complete-signup": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Complete user signup after code validation",
+                "description": "Complete Signup",
+                "operationId": "09f4bf56957b6f0de511cdd92abd8f32",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "phone",
+                                    "gender",
+                                    "address",
+                                    "dob",
+                                    "code",
+                                    "email"
+                                ],
+                                "properties": {
+                                    "code": {
+                                        "type": "string",
+                                        "example": "4Trdsgq7"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "example": "john@gmail.com"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "example": "08012345678"
+                                    },
+                                    "gender": {
+                                        "type": "string",
+                                        "enum": [
+                                            "male",
+                                            "female",
+                                            "other"
+                                        ],
+                                        "example": "male"
+                                    },
+                                    "address": {
+                                        "type": "string",
+                                        "example": "123 Lagos Street, Nigeria"
+                                    },
+                                    "dob": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "1995-06-15"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Signup completed successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Signup completed successfully"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "first_name": {
+                                                    "type": "string",
+                                                    "example": "John"
+                                                },
+                                                "middle_name": {
+                                                    "type": "string",
+                                                    "example": "Doe"
+                                                },
+                                                "last_name": {
+                                                    "type": "string",
+                                                    "example": "Smith"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "example": "john@example.com"
+                                                },
+                                                "phone": {
+                                                    "type": "string",
+                                                    "example": "08012345678"
+                                                },
+                                                "gender": {
+                                                    "type": "string",
+                                                    "example": "male"
+                                                },
+                                                "address": {
+                                                    "type": "string",
+                                                    "example": "123 Lagos Street, Nigeria"
+                                                },
+                                                "dob": {
+                                                    "type": "string",
+                                                    "example": "1995-06-15"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error"
                     }
                 }
             }

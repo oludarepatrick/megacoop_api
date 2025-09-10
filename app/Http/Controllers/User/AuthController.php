@@ -103,5 +103,53 @@ class AuthController extends BaseController
 
         }else return $this->sendError('Your account has been deactivated, contact the admin',[],401);
     }
+
+    /**
+     * @OA\Get(
+     ** path="/api/v1/user/logout",
+     *   tags={"User"},
+     *   summary="User Logout",
+     *   operationId="Userlogout",
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden"
+     *      ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *)
+     **/
+    public function logout()
+    {
+        Auth::user()->token()->revoke();
+        $data2=array(
+            'activity' => 'User Logout',
+            'user_id' => Auth::user()->id
+        );
+
+        ActivityLog::createActivity($data2);
+
+        return response([ 'message' => 'logged out successfully'],200);
+    }
     
 }

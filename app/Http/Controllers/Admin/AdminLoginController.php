@@ -7,7 +7,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Mail\SendEmailVerificationCode;
 use App\Models\{ActivityLog,AdminLogin};
-use App\Models\AdminActivity;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -88,10 +87,6 @@ class AdminLoginController extends BaseController
         $admin->last_seen_at = Carbon::now()->format('Y-m-d H:i:s');
         $admin->save();
 
-        $data2['activity']="Admin Login";
-        $data2['admin_id']=$admin->id;
-        AdminActivity::createActivity($data2);
-
         $token = auth()->guard('admin')->user()->createToken('access_token');
 
         return $this->successfulResponse([
@@ -107,10 +102,10 @@ class AdminLoginController extends BaseController
 
     /**
      * @OA\Get(
-     ** path="/api/v1/admin/admin-logout",
+     ** path="/api/v1/admin/logout",
      *   tags={"Admin"},
      *   summary="Admin Logout",
-     *   operationId="Admin logout",
+     *   operationId="Adminlogout",
      *
      *   @OA\Response(
      *      response=200,
@@ -158,7 +153,7 @@ class AdminLoginController extends BaseController
      ** path="/api/v1/admin/admin-profile",
      *   tags={"Admin"},
      *   summary="Admin Profile",
-     *   operationId="Admin Profile",
+     *   operationId="AdminProfile",
      *
      *   @OA\Response(
      *      response=200,

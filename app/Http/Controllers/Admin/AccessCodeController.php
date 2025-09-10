@@ -274,4 +274,108 @@ class AccessCodeController extends BaseController
             'code'    => $token,
         ]);
     }
+
+    /**
+     * @OA\Post(
+     *   path="/api/v1/user/validate-code",
+     *   tags={"User"},
+     *   summary="Validate sign up access code",
+     *   description="Validate if an access code is valid, unused, and not expired. Returns user details if valid.",
+     *   operationId="ValidateCode",
+     *
+     *   @OA\RequestBody(
+     *     @OA\JsonContent(
+     *       required={"email", "code"},
+     *       @OA\Property(property="email", type="string", example="john@example.com"),
+     *       @OA\Property(property="code", type="string", example="Ab3X9zPq")
+     *     )
+     *   ),
+     *
+     *   @OA\Response(
+     *     response=200,
+     *     description="Code validated successfully",
+     *     @OA\JsonContent(
+     *       @OA\Property(property="message", type="string", example="Code validated successfully"),
+     *       @OA\Property(property="first_name", type="string", example="John"),
+     *       @OA\Property(property="last_name", type="string", example="Doe"),
+     *       @OA\Property(property="middle_name", type="string", example="A."),
+     *       @OA\Property(property="code", type="string", example="Ab3X9zPq")
+     *     )
+     *   ),
+     *   @OA\Response(
+     *     response=400,
+     *     description="Invalid or expired code",
+     *     @OA\JsonContent(
+     *       @OA\Property(property="message", type="string", example="Code does not exist, has already been used, or is expired")
+     *     )
+     *   ),
+     *   @OA\Response(response=422, description="Validation error"),
+     *   @OA\Response(response=500, description="Server error")
+     * )
+     */
+    public function validateCode(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'code'  => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation error',
+                'errors'  => $validator->errors(),
+            ], 422);
+        }
+
+        try {
+            $user = User::where('email', $request->email)->first();
+
+            if (!$user) {
+                return response()->json([
+                    'message' => 'User not found with this email',
+                ], 400);
+            }
+
+            $token = SignupAccessToken::where('user_id', $user->id)
+                ->where('code', $request->code)
+                ->latest()
+                ->first();
+
+            if (!$token) {
+                return response()->json([
+                    'message' => 'Code does not exist',
+                ], 400);
+            }
+
+            // Check if already used
+            if ($token->status === 'used') {
+                return response()->json([
+                    'message' => 'Code has already been used',
+                ], 400);
+            }
+
+            // Check if expired
+            if (Carbon::now()->gte($token->expiration_date)) {
+                return response()->json([
+                    'message' => 'Code is already expired',
+                ], 400);
+            }
+
+            // $token->update(['status' => 'used']);
+            return response()->json([
+                'message'     => 'Code validated successfully',
+                'first_name'  => $user->first_name,
+                'last_name'   => $user->last_name,
+                'middle_name' => $user->middle_name,
+                'code'        => $token->code,
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Server error',
+                'error'   => $e->getMessage(),
+            ], 500);
+        }
+    }
+
 }
